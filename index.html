@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Last Semester Checklist</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- html2canvas library for downloading the card -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        /* 
+         *  --- REFINED MOBILE-FIRST STYLES ---
+         *  Defaults are optimized for small screens.
+         *  Media queries with `min-width` are used to enhance the layout for larger screens.
+        */
+        :root {
+            --bg-color: #1a1a2e;
+            --card-bg: #16213e;
+            --primary-color: #e94560;
+            --secondary-color: #0f3460;
+            --text-color: #dcdcdc;
+            --selected-color: #53a8b6;
+            --font-title: 'Fredoka One', cursive;
+            --font-body: 'Poppins', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px 15px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-family: var(--font-title);
+            color: var(--primary-color);
+            /* Fluid typography: scales with viewport, but has min/max limits */
+            font-size: clamp(2.2rem, 8vw, 3rem);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Mobile-First Grid: 2 columns for narrow screens */
+        #bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .bingo-tile {
+            background-color: var(--secondary-color);
+            border: 2px solid var(--card-bg);
+            border-radius: 12px;
+            padding: 12px 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            -webkit-tap-highlight-color: transparent; /* Better mobile tap feedback */
+        }
+
+        .bingo-tile:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+
+        .bingo-tile.selected {
+            background-color: var(--selected-color);
+            color: #fff;
+            transform: scale(1.05) translateY(-2px);
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 6px 12px rgba(233, 69, 96, 0.4);
+        }
+
+        .action-button {
+            background-color: var(--primary-color);
+            color: white;
+            font-family: var(--font-title);
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            margin: 10px;
+        }
+
+        .action-button:hover {
+            background-color: #ff5c77;
+            transform: scale(1.05);
+        }
+        
+        #result-container {
+            display: none; /* Hidden by default */
+            margin-top: 40px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        #chaos-card {
+            background: linear-gradient(135deg, var(--card-bg), var(--secondary-color));
+            padding: 20px;
+            border-radius: 20px;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }
+
+        #result-title {
+            font-family: var(--font-title);
+            font-size: clamp(1.8rem, 7vw, 2.2rem);
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        #result-description {
+            font-size: 1rem;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        #result-items-header {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            text-align: left;
+            border-bottom: 2px solid var(--selected-color);
+            padding-bottom: 5px;
+        }
+        
+        /* Mobile-First: Single column list by default */
+        #result-items {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+
+        #result-items li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            font-size: 0.9rem;
+        }
+
+        #result-items li::before {
+            content: '✅';
+            margin-right: 10px;
+            color: var(--selected-color);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Responsive Enhancements for Larger Screens --- */
+
+        /* Larger Phones / Small Tablets: 3 columns */
+        @media (min-width: 500px) {
+            #bingo-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            #chaos-card {
+                padding: 30px;
+            }
+            /* Make result list 2 columns */
+            #result-items {
+                columns: 2;
+                column-gap: 25px;
+            }
+        }
+
+        /* Tablets: 5 columns */
+        @media (min-width: 768px) {
+            body { padding: 30px; }
+            #bingo-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            .bingo-tile {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Desktops: 6 columns */
+        @media (min-width: 992px) {
+            #bingo-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            /* Make result list 3 columns */
+            #result-items {
+                columns: 3;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Semester Experience Bingo</h1>
+            <p>How chaotic was your semester? Select the boxes that apply to you!</p>
+        </header>
+
+        <main>
+            <div id="bingo-grid">
+                <!-- Bingo tiles will be generated by JavaScript -->
+            </div>
+
+            <button id="calculate-btn" class="action-button">See My Semester Title</button>
+        </main>
+
+        <div id="result-container">
+            <div id="chaos-card">
+                <h2 id="result-title"></h2>
+                <p id="result-description"></p>
+                <h3 id="result-items-header">Your Semester Highlights:</h3>
+                <ul id="result-items"></ul>
+            </div>
+            <button id="download-btn" class="action-button">Download Chaos Card</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bingoGrid = document.getElementById('bingo-grid');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const resultContainer = document.getElementById('result-container');
+            const resultTitle = document.getElementById('result-title');
+            const resultDescription = document.getElementById('result-description');
+            const resultItemsList = document.getElementById('result-items');
+            const downloadBtn = document.getElementById('download-btn');
+            const chaosCard = document.getElementById('chaos-card');
+
+            // --- DATA ---
+            const bingoItems = [
+                { id: 1, text: "Fell in love" },
+                { id: 2, text: "Sent out of class" },
+                { id: 3, text: "Submitted a blank test script" },
+                { id: 4, text: "Fought with your coursemate" },
+                { id: 5, text: "Had problem with course rep" },
+                { id: 6, text: "Begged lecturer" },
+                { id: 7, text: "Bought handout" },
+                { id: 8, text: "Fell sick" },
+                { id: 9, text: "Missed classes" },
+                { id: 10, text: "Participated in anonymous" },
+                { id: 11, text: "Got your phone seized" },
+                { id: 12, text: "Used expo in exam hall" },
+                { id: 13, text: "Entered shuttle" },
+                { id: 14, text: "Used AI for assignment" },
+                { id: 15, text: "Wrote assignment in class" },
+                { id: 16, text: "Broke someone’s heart" },
+                { id: 17, text: "Had your property stolen" },
+                { id: 18, text: "Slept over at your friend’s place" },
+                { id: 19, text: "Kissed your coursemate" },
+                { id: 20, text: "Slept in class" },
+                { id: 21, text: "Went to class without bathing" },
+                { id: 22, text: "Marked attendance for a friend" },
+                { id: 23, text: "Wrote test for a friend" },
+                { id: 24, text: "Considered dropping out" },
+                { id: 25, text: "Stay in the hostel" },
+                { id: 26, text: "Entered cab" },
+                { id: 27, text: "Stay off campus" },
+                { id: 28, text: "Wore the same outfit twice in a week" },
+                { id: 29, text: "Ate 'strong' Indomie at 2 AM" },
+                { id: 30, text: "Dodged a lecturer on campus" }
+            ];
+
+            const personalityTitles = [
+                { name: "👑 Chaos Royalty", desc: "All 30 boxes? You are now legend.", condition: (selected, counts) => selected.length === 30 },
+                { name: "🔥 Certified Chaos Merchant", desc: "You did *everything* wrong and survived.", condition: (selected, counts) => counts.cheating >= 3 && counts.survival >= 2 },
+                { name: "🎬 Nollywood Storyline", desc: "Fought, fell in love, failed. Repeat.", condition: (selected, counts) => counts.romance >= 2 && counts.drama >= 1 && counts.academicStruggle >= 1 },
+                { name: "🧊 Cold-Hearted Campus Don", desc: "You break hearts and submit blank scripts.", condition: (selected, counts) => selected.includes(16) && selected.includes(3) },
+                { name: "🎭 Main Character of the Semester", desc: "Full-blown series: love, betrayal, test failure.", condition: (selected, counts) => selected.length >= 15 && counts.romance >= 1 && counts.academicStruggle >= 1 && counts.drama >= 1 && counts.cheating >= 1 },
+                { name: "🤖 AI But Make It Academic", desc: "AI wrote the assignment. You begged anyway.", condition: (selected, counts) => selected.includes(14) && selected.includes(6) },
+                { name: "🔂 Always Restarting", desc: "You drop out mentally every semester.", condition: (selected, counts) => selected.includes(24) && counts.academicStruggle >= 3 },
+                { name: "🥷🏾 UnderG Level 99", desc: "Anonymous everything. Expo everything. You’re invisible.", condition: (selected, counts) => (selected.includes(10) || selected.includes(12)) && counts.cheating >= 2 },
+                { name: "💔 Heartbreak & Handouts", desc: "Your love life flopped but you still bought the handout.", condition: (selected, counts) => (selected.includes(1) || selected.includes(16) || selected.includes(19)) && selected.includes(7) && counts.romance >= 1 },
+                { name: "🥀 Lover Without Direction", desc: "Romantic drama ruined your GPA.", condition: (selected, counts) => counts.romance >= 2 && counts.academicStruggle >= 2 },
+                { name: "🪑 Chairperson, Attendance Fraud Board", desc: "Marked for all your squad.", condition: (selected, counts) => selected.includes(22) || selected.includes(23) },
+                { name: "🧼 Soapless Survivor", desc: "You showed up to class dirty, tired, and confused.", condition: (selected, counts) => selected.includes(21) && counts.survival >= 2 },
+                { name: "😴 Chairman of Sleep Committee", desc: "You used lecture time for deep rest.", condition: (selected, counts) => selected.includes(20) && counts.survival >= 1 },
+                { name: "🕵️ Ghost of the Classroom", desc: "Never seen in class. Always seen in exam hall.", condition: (selected, counts) => selected.includes(9) && !selected.includes(20) && selected.length < 10 },
+                { name: "😩 Walking Stress Ball", desc: "Your whole life is coursework and complaints.", condition: (selected, counts) => counts.academicStruggle >= 3 && selected.length < 8 },
+                { name: "📉 CGPA on Life Support", desc: "Flatline academics. Drama overload.", condition: (selected, counts) => counts.academicStruggle >= 2 && counts.drama >= 2 && counts.romance >= 1 },
+                { name: "🛐 O God of 4.5 GP", desc: "You didn’t read, but you prayed hard.", condition: (selected, counts) => selected.includes(6) && !selected.includes(12) && !selected.includes(14) },
+                { name: "🧠 Theoretical First Class", desc: "You look smart. Your CGPA disagrees.", condition: (selected, counts) => counts.academicStruggle >= 1 && counts.cheating === 0 && selected.length > 5 && selected.length < 10 },
+                { name: "🧍🏾 Man of the People", desc: "You entered everything — cab, shuttle, hostel.", condition: (selected, counts) => selected.includes(13) && selected.includes(26) && selected.includes(25) },
+                { name: "😇 Innocent Fresher", desc: "Only 1 or 2 boxes checked. You're still pure.", condition: (selected, counts) => selected.length > 0 && selected.length <= 2 },
+                { name: "🤡 Full-Time Clown, Part-Time Student", desc: "A comedy show in human form.", condition: (selected, counts) => counts.drama >= 2 && counts.survival >= 2 },
+                { name: "💅 Unbothered, Unwashed, Unread", desc: "You gave up halfway.", condition: (selected, counts) => selected.includes(21) && selected.includes(24) && selected.length < 7 },
+                { name: "🤯 Mumu Button Activated", desc: "Wrong choices, full semester.", condition: (selected, counts) => selected.includes(3) && selected.includes(4) && selected.includes(11) },
+                { name: "📚 Academic Weapon (In Theory)", desc: "Present in class, but mentally absent.", condition: (selected, counts) => !selected.includes(9) && selected.includes(20) },
+                { name: "🎒 Always Carrying Load, Never Carrying Book", desc: "You moved, but didn’t read.", condition: (selected, counts) => (selected.includes(25) || selected.includes(27)) && counts.academicStruggle > 0 },
+                { name: "🎓 Degree in Vibes & Survival", desc: "GPA = vibes. Life = survival.", condition: (selected, counts) => counts.survival >= 3 && counts.academicStruggle <= 1 },
+                { name: "😤 Professional Course Repeater", desc: "You and 'Carry Over' are best friends.", condition: (selected, counts) => selected.includes(3) && selected.includes(9) && selected.includes(24) },
+                { name: "🫠 'I No Fit Cry Again'", desc: "You’ve seen it all. Nothing moves you anymore.", condition: (selected, counts) => selected.length > 20 },
+                { name: "😮‍💨 Survivor of the Grit System", desc: "No love, no GPA, just energy.", condition: (selected, counts) => counts.romance === 0 && counts.academicStruggle >= 1 && counts.survival >= 2 },
+                { name: "🥵 The Semester Semeself", desc: "You became what you feared.", condition: (selected, counts) => selected.length > 10 } // Fallback
+            ];
+            
+            // Themes for smart logic
+            const themes = {
+                romance: [1, 16, 19],
+                academicStruggle: [2, 3, 5, 6, 9, 24],
+                cheating: [10, 12, 14, 22, 23],
+                survival: [7, 8, 15, 18, 20, 21, 28, 29, 30],
+                drama: [4, 11, 17],
+                logistics: [13, 25, 26, 27]
+            };
+
+            // --- FUNCTIONS ---
+
+            function createBingoGrid() {
+                bingoGrid.innerHTML = '';
+                bingoItems.forEach(item => {
+                    const tile = document.createElement('div');
+                    tile.classList.add('bingo-tile');
+                    tile.dataset.id = item.id;
+                    tile.textContent = item.text;
+                    bingoGrid.appendChild(tile);
+                });
+            }
+
+            function handleTileClick(e) {
+                if (e.target.classList.contains('bingo-tile')) {
+                    e.target.classList.toggle('selected');
+                }
+            }
+
+            function determineTitle(selectedIds) {
+                if (selectedIds.length === 0) {
+                    return { name: "🤔 Nothing Selected?", desc: "Click some boxes to see your semester title. Or maybe you're just a perfect student?" };
+                }
+
+                const themeCounts = {};
+                for (const theme in themes) {
+                    themeCounts[theme] = themes[theme].filter(id => selectedIds.includes(id)).length;
+                }
+
+                for (const title of personalityTitles) {
+                    if (title.condition(selectedIds, themeCounts)) {
+                        return { name: title.name, desc: title.desc };
+                    }
+                }
+                return { name: "🎓 Degree in Vibes & Survival", desc: "GPA = vibes. Life = survival." };
+            }
+            
+            function showResult() {
+                const selectedTiles = document.querySelectorAll('.bingo-tile.selected');
+                const selectedIds = Array.from(selectedTiles).map(tile => parseInt(tile.dataset.id));
+                const selectedTexts = Array.from(selectedTiles).map(tile => tile.textContent);
+
+                const result = determineTitle(selectedIds);
+                
+                resultTitle.innerHTML = result.name;
+                resultDescription.innerHTML = result.desc;
+
+                resultItemsList.innerHTML = '';
+                if (selectedTexts.length > 0) {
+                    selectedTexts.forEach(text => {
+                        const li = document.createElement('li');
+                        li.textContent = text;
+                        resultItemsList.appendChild(li);
+                    });
+                     document.getElementById('result-items-header').style.display = 'block';
+                } else {
+                    document.getElementById('result-items-header').style.display = 'none';
+                }
+
+                resultContainer.style.display = 'block';
+                resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            function downloadCard() {
+                chaosCard.style.boxShadow = 'none';
+
+                html2canvas(chaosCard, { 
+                    backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg-color'),
+                    scale: 2 
+                }).then(canvas => {
+                    chaosCard.style.boxShadow = '0 10px 20px rgba(0,0,0,0.4)';
+                    
+                    const link = document.createElement('a');
+                    link.download = 'my-semester-chaos-card.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                });
+                location.reload();
+
+            }
+
+            // --- EVENT LISTENERS ---
+            bingoGrid.addEventListener('click', handleTileClick);
+            calculateBtn.addEventListener('click', showResult);
+            downloadBtn.addEventListener('click', downloadCard);
+
+            // --- INITIALIZATION ---
+            createBingoGrid();
+        });
+    </script>
+</body>
+</html>
